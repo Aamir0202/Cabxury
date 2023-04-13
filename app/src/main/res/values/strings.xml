@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name" translatable="false">Cabxury</string>
+    <string name="title_activity_drivers_maps">DriversMapsActivity</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string-array name="spinner_items">
+        <item>Credit Card</item>
+        <item>Cash</item>
+        <item>Easy Paisa</item>
+    </string-array>
+    <string-array name="spinner_items2">
+        <item>Civic</item>
+        <item>Corolla</item>
+        <item>Mehran</item>
+        <item>Alto</item>
+        <item>Vezel</item>
+        <item>Sportage</item>
+        <item>Rx-7</item>
+        <item>Cultus</item>
+        <item>Hilux</item>
+        <item>Fortuner</item>
+    </string-array>
+
+    <string-array name="karachi_areas">
+        <item>Saddar</item>
+        <item>Gulshan-e-Iqbal</item>
+        <item>Clifton</item>
+        <item>Defence</item>
+        <item>Tariq Road</item>
+        <item>North Nazimabad</item>
+        <item>Gulistan-e-Jauhar</item>
+        <item>Bahadurabad</item>
+        <item>Scheme 33</item>
+        <item>Korangi</item>
+        <item>Malir</item>
+        <item>Liaquatabad</item>
+        <item>Orangi Town</item>
+        <item>Gulshan-e-Maymar</item>
+        <item>Gulberg</item>
+        <item>New Karachi</item>
+        <item>Shah Faisal Colony</item>
+        <item>Federal B. Area</item>
+        <item>Nazimabad</item>
+        <item>Baldia Town</item>
+        <item>Site Area</item>
+        <item>Keamari</item>
+        <item>Landhi</item>
+        <item>Kharadar</item>
+        <item>Garden East</item>
+        <item>Garden West</item>
+        <item>Lyari</item>
+        <item>Bin Qasim Town</item>
+        <item>Surjani Town</item>
+        <item>North Karachi</item>
+        <item>S.I.T.E.</item>
+        <item>Mehmoodabad</item>
+        <item>PECHS</item>
+        <item>Shahrah-e-Faisal</item>
+        <item>Bahria Town Karachi</item>
+        <item>DHA City Karachi</item>
+        <item>Super Highway</item>
+        <item>Abul Hassan Isphani Road</item>
+        <item>University Road</item>
+        <item>Shaheed-e-Millat Road</item>
+        <item>Nazimabad No. 2</item>
+    </string-array>
+
+
+</resources>
