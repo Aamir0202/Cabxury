@@ -15,6 +15,7 @@
 package com.example.cabxury;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -30,17 +31,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.SearchView;
 
 import java.io.IOException;
@@ -50,75 +52,27 @@ import java.util.List;
 /**
  * An activity that displays a Google map with a marker (pin) to indicate a particular location.
  */
-public class MapsMarkerActivity extends AppCompatActivity
+public class MapsMarkerActivity extends FragmentActivity
         implements OnMapReadyCallback {
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
-    String[] karachiAreas;
-    LatLng sydney= new LatLng(34,151);
+    private Polyline currentPolyline;
 
+    SupportMapFragment mapFragment;
+    SearchView searchView;
+    GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_drivers_maps);
-
-
-
-        // Now you can use this string array as per your requirement
-        // For example, to display all the areas in a list:
-       /* karachiAreas = getResources().getStringArray(R.array.karachi_areas);
-
-        ListView listView = findViewById(R.id.search_view);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, karachiAreas);
-        listView.setAdapter(adapter);
-
-        */
-
-
+        searchView=findViewById(R.id.search_view);
 
         // Get the SupportMapFragment and request notification when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney"));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 5));
 
-                // Initialize googleMap object
-                SearchView searchView = findViewById(R.id.search_view);
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-
-                        // Convert the query string to a location using Geocoder
-                        Geocoder geocoder = new Geocoder(MapsMarkerActivity.this);
-                        List<Address> addresses = null;
-                        try {
-                            addresses = geocoder.getFromLocationName(query, 1);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (addresses != null && addresses.size() > 0) {
-                            Address address = addresses.get(0);
-                            LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
-                            // Add a marker for the location and move the camera
-                            googleMap.addMarker(new MarkerOptions().position(location).title(query));
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 5));
-                        }
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        return false;
-                    }
-                });
-
-            }
-        });
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
@@ -130,6 +84,38 @@ public class MapsMarkerActivity extends AppCompatActivity
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_LOCATION);
         }
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String location = searchView.getQuery().toString();
+                List<Address> addressList=null;
+
+                if(location!=null || !location.equals("")){
+                    Geocoder geocoder= new Geocoder((MapsMarkerActivity.this));
+                    try {
+                        addressList=geocoder.getFromLocationName(location,1);
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+                    Address address=addressList.get(0);
+                    LatLng latlng=new LatLng(address.getLatitude(),address.getLongitude());
+                    map.addMarker(new MarkerOptions().position(latlng).title(location));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng,10));
+
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        mapFragment.getMapAsync(this);
+
+
         Button button = findViewById(R.id.BookCab);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,7 +124,9 @@ public class MapsMarkerActivity extends AppCompatActivity
                 startActivity(myIntent); //start the new activity
             }
         });
+
     }
+
     /**
      * Manipulates the map when it's available.
      * The API invokes this callback when the map is ready to be used.
@@ -150,61 +138,66 @@ public class MapsMarkerActivity extends AppCompatActivity
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-        // Add a marker in Sydney, Australia,
-        // and move the map's camera to the same location.
-        LatLng sydney = new LatLng(24.89686387016082, 67.02255719253037);
-        googleMap.addMarker(new MarkerOptions()
-                .position(sydney)
-                .title("Marker in Karachi"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        Geocoder geocoder = new Geocoder(this);
+        map=googleMap;
 
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            SearchView searchView = findViewById(R.id.search_view);
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    // Convert the query string to a location using Geocoder
-                    Geocoder geocoder = new Geocoder(MapsMarkerActivity.this);
-                    List<Address> addresses = null;
-                    try {
-                        addresses = geocoder.getFromLocationName(query, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (addresses != null && addresses.size() > 0) {
-                        Address address = addresses.get(0);
-                        LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
-                        // Add a marker for the location and move the camera
-                        googleMap.addMarker(new MarkerOptions().position(location).title(query));
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
-                    }
-                    return true;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    return false;
-                }
-            });
-
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-
                     @Override
                     public void onSuccess(Location location) {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                            googleMap.addMarker(new MarkerOptions().position(currentLocation).title("You are here"));
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+                            map.addMarker(new MarkerOptions().position(currentLocation).title("You are here"));
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,10));
+                            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                                @Override
+                                public boolean onQueryTextSubmit(String query) {
+                                    String location = searchView.getQuery().toString();
+                                    List<Address> addressList=null;
+
+                                    if(location!=null || !location.equals("")){
+                                        Geocoder geocoder= new Geocoder((MapsMarkerActivity.this));
+                                        try {
+                                            addressList=geocoder.getFromLocationName(location,1);
+                                        }
+                                        catch (IOException e){
+                                            e.printStackTrace();
+                                        }
+                                        Address address=addressList.get(0);
+                                        LatLng latlng=new LatLng(address.getLatitude(),address.getLongitude());
+                                        map.addMarker(new MarkerOptions().position(latlng).title(location));
+                                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng,10));
+                                        LatLng destinationLatLng = new LatLng(address.getLatitude(), address.getLongitude()); // Replace with the destination's latitude and longitude
+                                        PolylineOptions polylineOptions = new PolylineOptions()
+                                                .add(currentLocation, destinationLatLng)
+                                                .width(5)
+                                                .color(Color.RED);
+                                        currentPolyline = map.addPolyline(polylineOptions);
+
+                                    }
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onQueryTextChange(String newText) {
+                                    return false;
+                                }
+                            });
                         }
                     }
                 });
+
 
 
     }
