@@ -12,7 +12,6 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="wrap_content"
         android:layout_height="688dp"
-
         android:layout_centerInParent="true"
         tools:layout="@layout/activity_drivers_maps" />
 
@@ -37,6 +36,17 @@
         android:queryHint="Search for a location"
         android:entries="@array/karachi_areas"
         android:iconifiedByDefault="false"/>
+
+    <TextView
+        android:id="@+id/distanceTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_view"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:text="Distance: "
+        android:textSize="18sp" />
+
 
 
 </RelativeLayout>

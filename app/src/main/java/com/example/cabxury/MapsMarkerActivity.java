@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.maps.android.SphericalUtil;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -44,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.List;
@@ -61,6 +63,10 @@ public class MapsMarkerActivity extends FragmentActivity
     SupportMapFragment mapFragment;
     SearchView searchView;
     GoogleMap map;
+    private LatLng currentLocation;
+    private LatLng destinationLocation;
+    private double fare;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,11 +185,30 @@ public class MapsMarkerActivity extends FragmentActivity
                                         map.addMarker(new MarkerOptions().position(latlng).title(location));
                                         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng,10));
                                         LatLng destinationLatLng = new LatLng(address.getLatitude(), address.getLongitude()); // Replace with the destination's latitude and longitude
+
                                         PolylineOptions polylineOptions = new PolylineOptions()
                                                 .add(currentLocation, destinationLatLng)
                                                 .width(5)
                                                 .color(Color.RED);
                                         currentPolyline = map.addPolyline(polylineOptions);
+                                        // Calculate the distance between the current location and destination location
+                                        double distance = SphericalUtil.computeDistanceBetween(currentLocation, destinationLatLng);
+
+                                        // Calculate the fare based on the distance
+                                        if (distance <= 5000) {
+                                            fare = 100.0;
+                                        } else if (distance <= 10000) {
+                                            fare = 150.0;
+                                        } else if (distance <= 15000) {
+                                            fare = 200.0;
+                                        } else {
+                                            fare = 250.0;
+                                        }
+
+                                        // Update the UI with the fare
+                                        TextView distanceTextView = findViewById(R.id.distanceTextView);
+                                        distanceTextView.setText(String.format("Distance: %.2f meters\nFare: %.2f PKR", distance, fare));
+
 
                                     }
                                     return false;
